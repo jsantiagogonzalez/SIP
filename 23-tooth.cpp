@@ -296,12 +296,15 @@ int main(int argc, char* argv[])
     cout << "Copyright 2003-2016" << endl;
     cout << "-----------------------------------" << endl << endl << endl;
     cout << "Keyboard Options:" << endl << endl;
-    cout << "[1] - Wireframe (ON/OFF)" << endl;
-    cout << "[2] - Increase Opacity" << endl;
-    cout << "[3] - Reduce Opacity" << endl;
+    cout << "[1, 2, 3, 4, 5, 6, 7, 8, 9] - Change needle position" << endl;
     cout << "[f] - Enable/Disable full screen mode" << endl;
     cout << "[m] - Enable/Disable vertical mirroring" << endl;
     cout << "[q] - Exit application" << endl;
+    cout << "[up, down, right, left] - Move needle up, down, rith or left" << endl;
+    cout << "[M] - vertical mirroring " << endl;
+    cout << "[O] - increase transparency " << endl;
+    cout << "[K] - decrease transparency " << endl;
+
     cout << endl << endl;
 
     // parse first arg to try and locate resources
@@ -660,6 +663,7 @@ int main(int argc, char* argv[])
     bolapalo1 = new cMultiMesh();
     single_bolapalo1 = new cMesh();
 
+
     // load a drill like mesh and attach it to the tool
     fileload = bolapalo1->loadFromFile(RESOURCE_PATH("../resources/models/bolapalo1/Segmentation Bola con palo 1.stl"));
     if (!fileload)
@@ -682,6 +686,7 @@ int main(int argc, char* argv[])
     single_bolapalo1->setLocalPos(-1.05, 0.0, -0.775);
     single_bolapalo1->rotateAboutGlobalAxisDeg(cVector3d(0.0, 0.0, 1.0), 90);
 
+   
     // make the outside of the tooth rendered in semi-transparent
     single_bolapalo1->setUseTransparency(false);
     single_bolapalo1->setTransparencyLevel(transparencyLevel);
@@ -693,6 +698,8 @@ int main(int argc, char* argv[])
     // set the position and orientation of the object at the center of the world
     bolapalo1->setLocalPos(-1.05, 0.0, -0.775);
     bolapalo1->rotateAboutGlobalAxisDeg(cVector3d(0.0, 0.0, 1.0), 90);
+
+    
 
     // remove the collision detector. we do not want to compute any
     // force feedback rendering on the object itself.
@@ -766,7 +773,7 @@ int main(int argc, char* argv[])
     // attach drill to tool
     //tool->m_image->addChild(bolapalo1);
 
-    single_bolapalo2->m_material->setPurple();
+    single_bolapalo2->m_material->setGray();
 
     /////////////////////////////////////////////////////////////////////////
     // OBJECT "bolapalo3"
@@ -947,23 +954,6 @@ int main(int argc, char* argv[])
 
 
 
-    // create third camera for upside view
-    cCamera* cameraTool2 = new cCamera(world);
-
-    // attach camera to tool
-    bolapalo1->addChild(cameraTool2);
-    cameraTool2->setLocalPos(0.0, 3.0, 0.0);
-
-    // create framebuffer for side view
-    frameBuffer2 = cFrameBuffer::create();
-    frameBuffer2->setup(cameraTool2);
-
-    // create panel to display side view
-    viewPanel2 = new cViewPanel(frameBuffer);
-    camera->m_frontLayer->addChild(viewPanel2);
-    viewPanel2->setLocalPos(400, 400);
-
-
 
     double toolRadious = 0.01;
     // build collision detection tree
@@ -1012,6 +1002,20 @@ int main(int argc, char* argv[])
     normalSelect->m_colorPointB.setRedCrimson();
     normalSelect->setShowEnabled(false);
     normalSelect->setGhostEnabled(true);
+
+
+
+
+
+
+
+
+    // SET TEXTURES FOR EVERY OBJECT
+
+     
+    
+
+
 
     //--------------------------------------------------------------------------
     // WIDGETS
@@ -1086,7 +1090,7 @@ int main(int argc, char* argv[])
     labelMessage->setText("use mouse to select and move objects");
 
     //posicionpanel
-    panel->setLocalPos(700, 359, 0.0);
+    panel->setLocalPos(20, 350, 0.0);
 
     //--------------------------------------------------------------------------
     // START SIMULATION
@@ -1202,7 +1206,7 @@ void keyCallback(GLFWwindow* a_window, int a_key, int a_scancode, int a_action, 
         }
     }
 
-    // option - decrease transparency
+    // option - increase transparency
     else if (a_key == GLFW_KEY_O)
     {
         // increase transparency level
@@ -1416,6 +1420,172 @@ void keyCallback(GLFWwindow* a_window, int a_key, int a_scancode, int a_action, 
     cVector3d new_pos(0, 0.35, -0.35);
 
     needle->setLocalPos(new_pos);
+    }
+    
+    else if (a_key == GLFW_KEY_T)
+    {
+        //////////////////////////////////////////////////////////////////////////
+        //       TEXTURE
+        /////////////////////////////////////////////////////////////////////////
+            //new texture
+
+        // create texture
+        cTexture2dPtr texture = cTexture2d::create();
+
+        // load texture file
+        bool fileload2 = texture->loadFromFile(RESOURCE_PATH("../resources/images/spheremap-3.jpg"));
+        if (!fileload2)
+        {
+    #if defined(_MSVC)
+            fileload2 = texture->loadFromFile("../../../bin/resources/images/spheremap-3.jpg");
+    #endif
+        }
+        if (!fileload2)
+        {
+            cout << "Error - Texture image failed to load correctly." << endl;
+            close();
+            //return (-1);
+        }
+        
+        // setTexture
+        // set graphic properties of sphere
+        single_bolapalo1->setTexture(texture);
+        //sphere->m_texture->setSpheriwecalMappingEnabled(true);
+        single_bolapalo1->setUseTexture(true);
+        single_bolapalo1->m_material->setWhite();
+
+        // setTexture
+        // set graphic properties of sphere
+        single_bolapalo2->setTexture(texture);
+        //sphere->m_texture->setSpheriwecalMappingEnabled(true);
+        single_bolapalo2->setUseTexture(true);
+        //single_bolapalo2->m_material->setWhite();
+
+
+        // setTexture
+        // set graphic properties of sphere
+        single_bolapalo3->setTexture(texture);
+        //sphere->m_texture->setSpheriwecalMappingEnabled(true);
+        single_bolapalo3->setUseTexture(true);
+        single_bolapalo3->m_material->setWhite();
+
+
+        // setTexture
+        // set graphic properties of sphere
+        single_cuadradopalo->setTexture(texture);
+        //sphere->m_texture->setSpheriwecalMappingEnabled(true);
+        single_cuadradopalo->setUseTexture(true);
+        single_cuadradopalo->m_material->setWhite();
+
+
+        // setTexture
+        // set graphic properties of sphere
+        single_palo->setTexture(texture);
+        //sphere->m_texture->setSpheriwecalMappingEnabled(true);
+        single_palo->setUseTexture(true);
+        single_palo->m_material->setWhite();
+
+
+
+    }
+
+        else if (a_key == GLFW_KEY_H)
+        {
+        //////////////////////////////////////////////////////////////////////////
+        //       TEXTURE
+        /////////////////////////////////////////////////////////////////////////
+            //new texture
+
+        // create texture
+        cTexture2dPtr texture2 = cTexture2d::create();
+
+        // load texture file
+        bool fileload3 = texture2->loadFromFile(RESOURCE_PATH("../resources/images/whitefoam.jpg"));
+        if (!fileload3)
+        {
+    #if defined(_MSVC)
+            fileload3 = texture2->loadFromFile("../../../bin/resources/images/whitefoam.jpg");
+    #endif
+        }
+        if (!fileload3)
+        {
+            cout << "Error - Texture image failed to load correctly." << endl;
+            close();
+            //return (-1);
+        }
+
+        // setTexture
+        // set graphic properties of sphere
+        single_bolapalo1->setTexture(texture2);
+        //sphere->m_texture->setSpheriwecalMappingEnabled(true);
+        single_bolapalo1->setUseTexture(true);
+        single_bolapalo1->m_material->setWhite();
+
+        // setTexture
+        // set graphic properties of sphere
+        single_bolapalo2->setTexture(texture2);
+        //sphere->m_texture->setSpheriwecalMappingEnabled(true);
+        single_bolapalo2->setUseTexture(true);
+        //single_bolapalo2->m_material->setWhite();
+
+
+        // setTexture
+        // set graphic properties of sphere
+        single_bolapalo3->setTexture(texture2);
+        //sphere->m_texture->setSpheriwecalMappingEnabled(true);
+        single_bolapalo3->setUseTexture(true);
+        single_bolapalo3->m_material->setWhite();
+
+
+        // setTexture
+        // set graphic properties of sphere
+        single_cuadradopalo->setTexture(texture2);
+        //sphere->m_texture->setSpheriwecalMappingEnabled(true);
+        single_cuadradopalo->setUseTexture(true);
+        single_cuadradopalo->m_material->setWhite();
+
+
+        // setTexture
+        // set graphic properties of sphere
+        single_palo->setTexture(texture2);
+        //sphere->m_texture->setSpheriwecalMappingEnabled(true);
+        single_palo->setUseTexture(true);
+        single_palo->m_material->setWhite();
+
+
+
+    }
+        else if (a_key == GLFW_KEY_G)
+        {
+        //////////////////////////////////////////////////////////////////////////
+        //       TEXTURE
+        /////////////////////////////////////////////////////////////////////////
+            //new texture
+
+        // create texture
+        cTexture2dPtr texture3 = cTexture2d::create();
+
+        // load texture file
+        bool fileload4 = texture3->loadFromFile(RESOURCE_PATH("../resources/images/brownboard.jpg"));
+        if (!fileload4)
+        {
+#if defined(_MSVC)
+            fileload4 = texture3->loadFromFile("../../../bin/resources/images/brownboard.jpg");
+#endif
+        }
+        if (!fileload4)
+        {
+            cout << "Error - Texture image failed to load correctly." << endl;
+            close();
+            //return (-1);
+        }
+
+        // setTexture
+        // set graphic properties of sphere
+        single_caja->setTexture(texture3);
+        //sphere->m_texture->setSpheriwecalMappingEnabled(true);
+        single_caja->setUseTexture(true);
+        single_caja->m_material->setWhite();
     }
 }
 
