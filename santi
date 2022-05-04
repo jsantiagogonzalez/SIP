@@ -953,21 +953,56 @@ int main(int argc, char* argv[])
     // OBJECT "CUBO"
     /////////////////////////////////////////////////////////////////////////
 
-    // create a new mesh.
-    cubo = new cMesh();//mesh normal
+    
 
-    //build cubo using sphere primitive
-    cCreateBox(cubo,
-        0.18,//length x
+
+    cShapeBox* cubo;
+    // create a sphere by defini its radius
+    cubo = new cShapeBox(0.18,//length x
         0.167,//length y
-        0.158,//length z
-        cVector3d(-2.145, -0.337, 0.264)//posicion
-    );
+        0.158);
 
+    // add object to world
     world->addChild(cubo);
-    // set material color and transparency
+
+    // set the position of the object at the center of the world
+    cubo->setLocalPos(-2.145, -0.337, 0.264);
+
+    // load texture map
+    cubo->m_texture = cTexture2d::create();
+    fileload = cubo->m_texture->loadFromFile(RESOURCE_PATH("../resources/images/spheremap-5.jpg"));
+    if (!fileload)
+    {
+#if defined(_MSVC)
+        fileload = cubo->m_texture->loadFromFile("../../../bin/resources/images/spheremap-5.jpg");
+#endif
+    }
+    if (!fileload)
+    {
+        cout << "Error - Texture image failed to load correctly." << endl;
+        close();
+        return (-1);
+    }
+
+    // set graphic properties
+    cubo->m_texture->setSphericalMappingEnabled(true);
+    cubo->m_material->m_ambient.set(0.1, 0.1, 0.6, 0.5);
+    cubo->m_material->m_diffuse.set(0.3, 0.3, 0.9, 0.5);
+    cubo->m_material->m_specular.set(1.0, 1.0, 1.0, 0.5);
     cubo->m_material->setWhite();
-    cubo->setTransparencyLevel(transparencyLevelInternalObjects);
+    cubo->setUseTexture(true);
+
+    // set haptic properties
+    cubo->m_material->setStickSlipForceMax(0.98 * maxLinearForce);// % of maximum linear force
+    cubo->m_material->setStickSlipStiffness(0.98 * maxStiffness); // % of maximum linear stiffness
+
+    // create a haptic stick-slip effect
+    cubo->createEffectStickSlip();
+
+    cubo->m_material->setViscosity(100);    // % of maximum linear damping
+
+   // create a haptic viscous effect
+    cubo->createEffectViscosity();
 
     /////////////////////////////////////////////////////////////////////////
     // OBJECT "CILINDROC"
@@ -1364,7 +1399,7 @@ int main(int argc, char* argv[])
     bolapalo2->createAABBCollisionDetector(toolRadius);
     bolapalo3->createAABBCollisionDetector(toolRadius);
     palo->createAABBCollisionDetector(toolRadius);
-    cuadradopalo->createAABBCollisionDetector(toolRadius);
+    //cuadradopalo->createAABBCollisionDetector(toolRadius);
     patatas->createAABBCollisionDetector(toolRadius);
     //caja_out->createAABBCollisionDetector(toolRadius);
 
@@ -2156,6 +2191,9 @@ void updateHaptics(void)
         // SIMULATION TIME
         /////////////////////////////////////////////////////////////////////
 
+        // compute global reference frames for each object
+        world->computeGlobalPositions(true);
+
         // read real position of device Novint Falcon (3DOF)
         cVector3d position_3DOF;
         hapticDevice->getPosition(position_3DOF);
@@ -2165,6 +2203,8 @@ void updateHaptics(void)
         // modify 3DOF position of haptic device to 1DOF for our application
         cVector3d position_1DOF;
         position_1DOF = cVector3d(position_3DOF.x(), haptic_pos.y(), haptic_pos.z());
+        //position_1DOF = cVector3d(position_3DOF.x(), 0.35, 0);
+        //needle->setLocalPos(position_1DOF);
         tool->setDeviceLocalPos(position_1DOF);
 
         /////////////////////////////////////////////////////////////////////
@@ -2172,9 +2212,7 @@ void updateHaptics(void)
         /////////////////////////////////////////////////////////////////////
         //hapticDevice->getPosition(tool->getGlobalPos());
 
-        // compute global reference frames for each object
-        world->computeGlobalPositions(true);
-
+        
         // compute interaction forces
         tool->computeInteractionForces();
 
